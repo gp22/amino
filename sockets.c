@@ -43,6 +43,15 @@ int Listen(int sockfd, int backlog) {
   return status;
 }
 
+ssize_t Recv(int fd, void *ptr, size_t nbytes, int flags) {
+  ssize_t n;
+
+  if ((n = recv(fd, ptr, nbytes, flags)) < 0)
+    err_sys("recv error");
+
+  return (n);
+}
+
 int Socket(int family, int type, int proto) {
   int sockfd;
 
