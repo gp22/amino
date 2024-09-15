@@ -1,7 +1,7 @@
 CC = cc
 CFLAGS=-Wall -g -O0
 
-default: error.c error.h sockets.c sockets.h amino.c
+default: error.c error.h sockets.c sockets.h sys.c sys.h amino.c
 	$(CC) $(CFLAGS) sockets.c error.c amino.c -o amino
 
 showip: error.c error.h sockets.c sockets.h showip.c
