@@ -10,10 +10,6 @@
 
 #define MAXLINE 4096 /* max text line length */
 
-static void err_doit(int, int, const char *, va_list);
-
 void err_sys(const char *, ...);
-
-static void err_doit(int, int, const char *, va_list);
 
 #endif

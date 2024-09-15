@@ -9,6 +9,8 @@
 
 int daemon_proc; /* set nonzero by daemon_init() */
 
+static void err_doit(int, int, const char *, va_list);
+
 /* Fatal error related to system call
  * Print message and terminate */
 
