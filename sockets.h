@@ -10,6 +10,7 @@ int Connect(int, struct sockaddr *, int);
 int Getaddrinfo(char *, char *, struct addrinfo *, struct addrinfo **);
 int Listen(int, int);
 ssize_t Recv(int, void *, size_t, int);
+ssize_t Send(int, void *, size_t, int);
 int Socket(int, int, int);
 
 #endif

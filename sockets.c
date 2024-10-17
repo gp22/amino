@@ -1,5 +1,6 @@
 #include "sockets.h"
 #include "error.h"
+#include <stdio.h>
 
 int Accept(int sockfd, struct sockaddr *addr, socklen_t *addrlen) {
   int accept_fd;
@@ -49,7 +50,16 @@ ssize_t Recv(int fd, void *ptr, size_t nbytes, int flags) {
   if ((n = recv(fd, ptr, nbytes, flags)) < 0)
     err_sys("recv error");
 
-  return (n);
+  return n;
+}
+
+ssize_t Send(int fd, void *ptr, size_t nbytes, int flags) {
+  ssize_t n;
+
+  if ((n = send(fd, ptr, nbytes, flags)) < 0)
+    err_sys("send error");
+
+  return n;
 }
 
 int Socket(int family, int type, int proto) {
