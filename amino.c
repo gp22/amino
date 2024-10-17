@@ -8,15 +8,18 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/socket.h>
+#include <sys/types.h>
 
 #define BACKLOG 10
 #define BUFSIZE 65536
 
 void web(int fd) {
   char buff[BUFSIZE + 1];
-  int i;
+  int mr;
   ssize_t ret;
-  bstring req;
+  ssize_t res;
+  bstring get = bfromcstr("GET");
+  bstring req_f, req_m, req;
   struct bstrList *req_body, *req_header;
 
   ret = Recv(fd, buff, BUFSIZE, 0);
@@ -28,26 +31,59 @@ void web(int fd) {
 
   req = bfromcstr(buff);
   if (!req) {
-    err_quit("error reading request");
+    //err_quit("error reading request");
+    char msg[] = "HTTP/1.1 500 Internal Server Error\n";
+    ssize_t len = sizeof(msg);
+    res = Send(fd, msg, len, 0);
+    Close(fd);
+    return;
   }
 
   req_body = bsplit(req, '\n');
   if (req_body->qty < 1) {
-    err_quit("error reading request");
+    //err_quit("invalid request");
+    char msg[] = "HTTP/1.1 400 Bad Request\n";
+    ssize_t len = sizeof(msg);
+    res = Send(fd, msg, len, 0);
+    Close(fd);
+    return;
   }
 
   req_header = bsplit(req_body->entry[0], ' ');
-  if (req_header->qty < 1) {
-    err_quit("error reading request");
+  if (req_header->qty != 3) {
+    //err_quit("invalid request");
+    char msg[] = "HTTP/1.1 400 Bad Request\n";
+    ssize_t len = sizeof(msg);
+    res = Send(fd, msg, len, 0);
+    Close(fd);
+    return;
   }
 
-  for (i = 0; i < req_header->qty; i++) {
-    printf("req_header[%i]: %s\n", i, (char *)req_header->entry[i]->data);
+  req_m = req_header->entry[0];
+  mr = biseqcaseless(req_m, get);
+  if (mr != 1) {
+    char msg[] = "HTTP/1.1 405 Method Not Allowed\n";
+    ssize_t len = sizeof(msg);
+    res = Send(fd, msg, len, 0);
+    Close(fd);
+    return;
+  } else {
+    char msg[] = "HTTP/1.1 200 OK\n";
+    ssize_t len = sizeof(msg);
+    res = Send(fd, msg, len, 0);
+    Close(fd);
+    return;
   }
 
-  Close(fd);
-  bdestroy(req);
-  bstrListDestroy(req_body);
+  // req_f = req_header->entry[1];
+  //  TODO: Make requested file is valid (correct ext, exists)
+
+  //Close(fd);
+  // bdestroy(req_f);
+  //bdestroy(req_m);
+  //bdestroy(req);
+  //bstrListDestroy(req_body);
+  //bstrListDestroy(req_header);
 }
 
 int main(int argc, char *argv[]) {
