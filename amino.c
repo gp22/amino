@@ -60,7 +60,7 @@ void web(int fd) {
   }
 
   req_m = req_header->entry[0];
-  mr = biseqcaseless(req_m, get);
+  mr = biseqcaseless(req_m, bfromcstr("GET"));
   if (mr != 1) {
     char msg[] = "HTTP/1.1 405 Method Not Allowed\n";
     ssize_t len = sizeof(msg);
