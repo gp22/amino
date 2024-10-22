@@ -4,6 +4,7 @@
 #include "sys.h"
 
 #include <arpa/inet.h>
+#include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -15,10 +16,9 @@
 
 void web(int fd) {
   char buff[BUFSIZE + 1];
-  int mr;
-  ssize_t ret;
-  ssize_t res;
   bstring get = bfromcstr("GET");
+  int file_fd, mr;
+  ssize_t len, ret, res;
   bstring req_f, req_m, req;
   struct bstrList *req_body, *req_header;
 
@@ -68,15 +68,26 @@ void web(int fd) {
     Close(fd);
     return;
   } else {
-    char msg[] = "HTTP/1.1 200 OK\n";
-    ssize_t len = sizeof(msg);
-    res = Send(fd, msg, len, 0);
+    //req_f = req_header->entry[1];
+    //printf("%s\n", req_f->data);
+
+    //  TODO: Make requested file is valid (correct ext, exists)
+    if ((file_fd = open("./index.html", O_RDONLY)) == -1) { /* open the file for reading */
+      Close(fd);
+      return;
+    }
+
+    sprintf(buff, "HTTP/1.1 200 OK\nServer: Amino\nConnection: close\nContent-Type: %s\n\n", "text/html");
+    len = strlen(buff);
+    Send(fd, buff, len, 0);
+
+    while ((ret = read(file_fd, buff, BUFSIZE)) > 0) {
+      Send(fd, buff, ret, 0);
+    }
+
     Close(fd);
     return;
   }
-
-  // req_f = req_header->entry[1];
-  //  TODO: Make requested file is valid (correct ext, exists)
 
   //Close(fd);
   // bdestroy(req_f);
