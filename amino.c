@@ -16,7 +16,6 @@
 
 void web(int fd) {
   char buff[BUFSIZE + 1];
-  bstring get = bfromcstr("GET");
   int file_fd, mr;
   ssize_t len, ret, res;
   bstring req_f, req_m, req;
